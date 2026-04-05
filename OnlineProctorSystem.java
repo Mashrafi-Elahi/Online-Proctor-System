@@ -1,33 +1,36 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package onlineproctorsystem;
-// OnlineProctorSystem.java
-// OnlineProctorSystem.java
-
-// OnlineProctorSystem.java
-
-
-import java.util.List;
-import java.util.Arrays;
-
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.*;
 import java.util.*;
-import java.util.Timer;
-import java.util.TimerTask;
 
+/**
+ * Online Proctor System – single-file Swing application.
+ *
+ * Sections:
+ *   1. Entry point
+ *   2. UI Frames  – LoginFrame, StudentDashboard, ResultFrame, ProctorDashboard
+ *   3. Model      – Question
+ *   4. Utilities  – WebcamUtility
+ *   5. Persistence – saveResult
+ */
 public class OnlineProctorSystem {
 
+    // -------------------------------------------------------------------------
+    // 1. Entry point
+    // -------------------------------------------------------------------------
+
+    /** Launches the application on the Event Dispatch Thread. */
     public static void main(String[] args) {
-        new LoginFrame();
+        SwingUtilities.invokeLater(LoginFrame::new);
     }
 
-    // ---------- Login Frame ----------
+    // -------------------------------------------------------------------------
+    // 2. UI Frames
+    // -------------------------------------------------------------------------
+
+    /** Login screen used by both students and proctors. */
     static class LoginFrame extends JFrame {
         private JTextField usernameField;
         private JPasswordField passwordField;
@@ -82,6 +85,7 @@ public class OnlineProctorSystem {
             setVisible(true);
         }
 
+        /** Validates credentials and opens the appropriate dashboard. */
         private void login() {
             String user = usernameField.getText().trim();
             String pass = new String(passwordField.getPassword());
@@ -99,7 +103,7 @@ public class OnlineProctorSystem {
         }
     }
 
-    // ---------- Student Dashboard ----------
+    /** Dashboard shown to a student after login; launches ExamFrame. */
     static class StudentDashboard extends JFrame {
         public StudentDashboard(String studentName) {
             setTitle("Student Dashboard");
@@ -125,7 +129,11 @@ public class OnlineProctorSystem {
         }
     }
 
-    // ---------- Question Model ----------
+    // -------------------------------------------------------------------------
+    // 3. Model
+    // -------------------------------------------------------------------------
+
+    /** Represents a single multiple-choice question. */
     static class Question {
         String text;
         String[] choices;
@@ -138,8 +146,13 @@ public class OnlineProctorSystem {
         }
     }
 
-    // ---------- Webcam Utility ----------
+    // -------------------------------------------------------------------------
+    // 4. Utilities
+    // -------------------------------------------------------------------------
+
+    /** Simulates webcam snapshot captures during an exam session. */
     static class WebcamUtility {
+        /** Writes a mock snapshot file to the snapshots/ directory. */
         static void captureImage(String studentName, int captureIndex) {
             try {
                 File file = new File("snapshots/" + studentName + "_snap_" + captureIndex + ".jpg");
@@ -154,7 +167,7 @@ public class OnlineProctorSystem {
         }
     }
 
-    // ---------- Result Frame ----------
+    /** Shows the student's final score after exam submission. */
     static class ResultFrame extends JFrame {
         public ResultFrame(int score) {
             setTitle("Exam Result");
@@ -169,7 +182,7 @@ public class OnlineProctorSystem {
         }
     }
 
-    // ---------- Proctor Dashboard ----------
+    /** Dashboard that loads results.txt and displays all student results. */
     static class ProctorDashboard extends JFrame {
         public ProctorDashboard() {
             setTitle("Proctor Dashboard");
@@ -195,6 +208,8 @@ public class OnlineProctorSystem {
                         log.append(name).append(" - Score: ").append(score).append(" ").append(emoji).append(" (Status: ").append(status).append(")\n");
                     }
                 }
+            } catch (FileNotFoundException e) {
+                log.append("(No results file found – no exams have been submitted yet.)");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -205,7 +220,11 @@ public class OnlineProctorSystem {
         }
     }
 
-    // ---------- Save Results ----------
+    // -------------------------------------------------------------------------
+    // 5. Persistence
+    // -------------------------------------------------------------------------
+
+    /** Appends a student's exam result to results.txt. */
     static void saveResult(String name, int score, String status) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("results.txt", true))) {
             writer.write(name + "," + score + "," + status);
